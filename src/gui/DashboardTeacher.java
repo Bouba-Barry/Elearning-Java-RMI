@@ -118,13 +118,13 @@ public class DashboardTeacher {
         // label du prof
         HBox AccueilProf = new HBox();
         Label profName = new Label(""+currentUser.getNom());
-        profName.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 30));
+        profName.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 12));
         AccueilProf.getChildren().addAll(profName);
         AccueilProf.setPadding(new Insets(20,0,20,40));
 
         HBox CoursModuleHbox = new HBox();
         Label modLabel = new Label("Vos Modules");
-        modLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, FontPosture.REGULAR, 40));
+        modLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, FontPosture.REGULAR, 20));
         CoursModuleHbox.getChildren().add(modLabel);
         CoursModuleHbox.setAlignment(Pos.BASELINE_CENTER);
         CoursModuleHbox.setPadding(new Insets(20,100,20,300));
