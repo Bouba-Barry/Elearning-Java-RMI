@@ -1,6 +1,7 @@
 package gui;
 
 import client.ClientRMI;
+import dao.ClasseDao;
 import dao.ModuleDao;
 import dao.RessourceDao;
 import dao.UserDao;
@@ -15,19 +16,16 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import metier.Classe;
+import metier.*;
 import metier.Module;
-import metier.Ressource;
-import metier.User;
-import service.FileRemote;
-import service.UserRMI;
-import service.UserRemote;
+import service.*;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DashboardTeacher {
@@ -59,6 +57,8 @@ public class DashboardTeacher {
         /* * ********** traitement du leftPanel ***********************/
         HBox conversationHbox = new HBox();
         HBox logoutHbox = new HBox();
+        // le content de mon center dans le scrollPane
+        ScrollPane scrollPaneRightPanel = new ScrollPane();
 
         // recuperez la list des etudiants du prof ...
 
@@ -67,9 +67,39 @@ public class DashboardTeacher {
         titledPaneConv.setPrefSize(180,50);
         titledPaneConv.setText("Conversation");
         titledPaneConv.setExpanded(false);
-        VBox vBoxTmp = new VBox();
-        vBoxTmp.getChildren().addAll(new Label("classe1"),new Label("classe2"));
-        titledPaneConv.setContent(vBoxTmp);
+
+        // recuperez la listes des classes de ce prof ...
+        List<Classe> classeStudent = new ArrayList<>();
+        for(String s : ModuleDao.getAllStudentByTeacher(currentUser.getId())){
+              int idClasse =  Integer.parseInt(s);
+           classeStudent.add(ClasseDao.getClassById(Integer.parseInt(s)));
+        }
+        VBox tmpVbox = new VBox();
+        for(Classe c : classeStudent){
+            TitledPane titledPaneClasse = new TitledPane();
+            titledPaneClasse.setText(c.getSubject());
+            titledPaneClasse.setExpanded(false);
+            VBox boxUser = new VBox();
+            boxUser.setSpacing(5);
+            List<User> UserByClasse = UserDao.getAllUserByClasse(c.getId());
+            for(User u : UserByClasse){
+                Button userName = new Button(u.getNom());
+                userName.setPrefSize(80,12);
+                userName.setOnAction(event -> {
+                    User userReceiver = UserDao.getUserByName(u.getNom());
+                    BorderPane pane =  createConversationBorderPane(userRMI, userReceiver,scrollPaneRightPanel ,root);
+                    pane.setPadding(new Insets(0,15,0,0));
+                    //borderPane.setCenter(pane);
+                    root.setCenter(pane);
+                });
+                boxUser.getChildren().add(userName);
+            }
+            titledPaneClasse.setContent(boxUser);
+            tmpVbox.getChildren().add(titledPaneClasse);
+        }
+        //vBoxTmp.getChildren().addAll(new Label("classe1"),new Label("classe2"));
+        tmpVbox.setSpacing(5);
+        titledPaneConv.setContent(tmpVbox);
         conversationHbox.getChildren().addAll(titledPaneConv);
 
         //part of logout
@@ -83,7 +113,6 @@ public class DashboardTeacher {
         leftPanel.setStyle("-fx-background-color: lightgray");
 
         /*************************  right Panel ************************************  ***/
-        ScrollPane scrollPaneRightPanel = new ScrollPane();
         for(Module m: modules){
             VBox module1Vbox = new VBox();
             Label module1Label = new Label(m.getLibelle());
@@ -118,7 +147,7 @@ public class DashboardTeacher {
         // label du prof
         HBox AccueilProf = new HBox();
         Label profName = new Label(""+currentUser.getNom());
-        profName.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 12));
+        profName.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
         AccueilProf.getChildren().addAll(profName);
         AccueilProf.setPadding(new Insets(20,0,20,40));
 
@@ -282,6 +311,146 @@ public class DashboardTeacher {
             extension = fileName.substring(index+1);
         }
         return extension;
+    }
+
+    public BorderPane createConversationBorderPane(UserRMI user, User receiverInfo,ScrollPane pred,BorderPane main){
+        BorderPane borderPane = new BorderPane();
+        HBox hBox = new HBox();
+        String receiverName = receiverInfo.getNom();
+        Label receiverNameLabel = new Label(receiverName);
+        receiverNameLabel.setFont(Font.font("bold",30));
+
+        Button backButton = new Button("retour Menu");
+        backButton.setAlignment(Pos.TOP_LEFT);
+        backButton.setOnAction(event -> {
+            main.setCenter(pred);
+        });
+
+
+        hBox.getChildren().addAll(backButton,receiverNameLabel);
+        hBox.setSpacing(80);
+        // ce qui est ajouté de suite ....
+        hBox.setPadding(new Insets(10,0,0,150));
+        hBox.setStyle("-fx-background-color: white");
+
+        borderPane.setTop(hBox);
+        //Creating method that generate conversation scrolling
+        List<Messagerie> messageList = new ArrayList<>();
+        try{
+            ChatRemote chatRemote = (ChatRemote) Naming.lookup("rmi://localhost:1099/ChatService");
+            messageList = chatRemote.getMessages(currentUser.getId(),receiverInfo.getId());
+        }catch (Exception e){
+            e.printStackTrace();
+            System.out.println("Erreur de recupération de conversation");
+        }
+        System.out.println(messageList);
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setPrefHeight(500);
+        scrollPane.setVvalue(300);
+        VBox leftMessageDisplay = new VBox();
+        VBox rightMessageDisplay = new VBox();
+        int i=0;
+        for (Messagerie message:messageList) {
+            HBox leftHBox = new HBox();
+            HBox rightHBox = new HBox();
+            Label leftLabel = new Label(message.getContent());
+            leftLabel.setFont(Font.font("bold",15));
+            Label rightLabel = new Label(message.getContent());
+            rightLabel.setFont(Font.font("bold",15));
+            if (message.getSender_id()==receiverInfo.getId()){
+                //Message have to be displayed at left
+                leftHBox.getChildren().add(leftLabel);
+                leftHBox.setStyle("-fx-background-color: lightgray");
+                leftMessageDisplay.getChildren().add(leftHBox);
+                rightLabel.setVisible(false);
+                rightHBox.getChildren().add(rightLabel);
+                rightMessageDisplay.getChildren().add(rightHBox);
+            }else {
+                //Message have to be displayed at right
+                rightHBox.getChildren().add(rightLabel);
+                rightLabel.setStyle("-fx-background-color: #C0C0C0");
+                rightMessageDisplay.getChildren().add(rightHBox);
+                leftLabel.setVisible(false);
+                leftHBox.getChildren().add(leftLabel);
+                leftMessageDisplay.getChildren().add(leftHBox);
+            }
+
+        }
+        BorderPane conversationBox = new BorderPane();
+        leftMessageDisplay.setSpacing(20);
+        rightMessageDisplay.setSpacing(20);
+        conversationBox.setLeft(leftMessageDisplay);
+        conversationBox.setRight(rightMessageDisplay);
+        conversationBox.setPrefWidth(450);
+        scrollPane.setContent(conversationBox);
+
+        borderPane.setCenter(scrollPane);
+
+        HBox writingHbox = new HBox();
+        TextArea messageField = new TextArea();
+        messageField.setPrefWidth(700);
+        messageField.setPrefHeight(30);
+        messageField.setBorder(Border.EMPTY);
+
+        Button sendButton = new Button("send");
+        sendButton.setPrefSize(100,40);
+        sendButton.setFont(Font.font("bold",20));
+        //sendButton.setTextFill(Color.WHITE);
+        sendButton.setStyle("-fx-background-color: green");
+        sendButton.setOnAction(event -> {
+            String messageToSend = messageField.getText();
+            if (!messageToSend.equals("")){
+                /*DateFormat dateFormat = new SimpleDateFormat();
+                String dateToString = dateFormat.format(new Date());*/
+
+                try {
+                    ChatRemote messageRemote = (ChatRemote) Naming.lookup("rmi://localhost:1099/ChatService");
+                    if (messageRemote.sendMessage(messageToSend,currentUser.getId(), receiverInfo.getId())){
+                        addMessageInConversationBox(messageToSend,leftMessageDisplay,rightMessageDisplay,conversationBox);
+                        for(User u : sessionUser.getAllLoggedUser()){
+                            if(u.getId() == receiverInfo.getId()){
+                                u.setNotifyUser(false);
+                                SharedMessageRemote sharedMes = (SharedMessageRemote) Naming.lookup("rmi://localhost:1099/SharedService");
+                                sharedMes.setContent(new Messagerie(currentUser.getId(),receiverInfo.getId(),messageToSend,"envoyé"));
+                                sharedMes.setReceiver(receiverInfo.getId());
+                                sharedMes.setSender(currentUser.getId());
+                                if(sharedMes.getContent() != null && sharedMes.getReceiver() == currentUser.getId()){
+                                    addMessageInConversationBox(sharedMes.getContent().getContent(),rightMessageDisplay,leftMessageDisplay,conversationBox);
+                                }
+                                u.setNewMessage(messageToSend);
+                            }
+                        }
+                        messageField.setText("");
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                    System.out.println("Failed to send new message !!!");
+                }
+            }
+
+        });
+        writingHbox.getChildren().addAll(messageField,sendButton);
+        writingHbox.setPadding(new Insets(10));
+        writingHbox.setStyle("-fx-background-color: white");
+        borderPane.setBottom(writingHbox);
+
+        return borderPane;
+    }
+
+    public void addMessageInConversationBox(String message,VBox leftMessageDisplay,VBox rightMessageDisplay,BorderPane conversationBox)
+    {
+        Label leftLabel = new Label(message);
+        leftLabel.setFont(Font.font("bold",15));
+        Label rightLabel = new Label(message);
+        rightLabel.setFont(Font.font("bold",15));
+        HBox leftHBox = new HBox();
+        HBox rightHBox = new HBox();
+        rightHBox.getChildren().add(rightLabel);
+        rightLabel.setStyle("-fx-background-color: #C0C0C0");
+        rightMessageDisplay.getChildren().add(rightHBox);
+        leftLabel.setVisible(false);
+        leftHBox.getChildren().add(leftLabel);
+        leftMessageDisplay.getChildren().add(leftHBox);
     }
 
 }

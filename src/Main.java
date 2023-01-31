@@ -33,8 +33,8 @@ public class Main {
 */
 
         for(String s : ModuleDao.getAllStudentByTeacher(2)){
-            String part[] =  s.split(":");
-            System.out.println("id_classe : "+part[2]);
+           // String part[] =  s.split(":");
+            System.out.println(Integer.parseInt(s));
         }
     }
 
