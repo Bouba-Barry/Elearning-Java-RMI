@@ -30,6 +30,13 @@ public class User implements Serializable {
         this.classe_id = classe_id;
     }
 
+    public User(String email, String password, String student, int id) {
+        this.email = email;
+        this.password = password;
+        this.type = student;
+        this.classe_id = id;
+    }
+
     public int getId() {
         return id;
     }

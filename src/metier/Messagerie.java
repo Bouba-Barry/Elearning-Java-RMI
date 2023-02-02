@@ -73,4 +73,12 @@ private String date;
     public void setEtat(String etat) {
         this.etat = etat;
     }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
 }

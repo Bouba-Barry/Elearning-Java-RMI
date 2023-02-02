@@ -1,7 +1,9 @@
 package service;
 
+import dao.ForumDao;
 import dao.MessagerieDao;
 import dao.ModuleDao;
+import metier.Forum;
 import metier.Messagerie;
 
 import java.rmi.RemoteException;
@@ -52,4 +54,15 @@ protected UserRMI userRMI;
     public UserRMI getUserRMI() {
         return userRMI;
     }
+
+    @Override
+    public boolean addMessageToGroup(int classeId, int senderId, String message) throws RemoteException {
+        return ForumDao.addMessageToGroup(new Forum(classeId,senderId,message));
+    }
+
+    @Override
+    public List<Forum> getGroupMessages(int classeId) throws RemoteException {
+        return ForumDao.getGroupMessages(classeId);
+    }
+
 }

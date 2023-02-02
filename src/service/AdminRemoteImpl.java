@@ -1,7 +1,9 @@
 package service;
 
+import dao.ModuleDao;
 import dao.UserDao;
 import metier.Messagerie;
+import metier.Module;
 import metier.User;
 
 import java.net.InetAddress;
@@ -56,16 +58,34 @@ private Messagerie message;
         this.message = message;
     }
 
-    public InetAddress getAdresseHOST() throws RemoteException {
-        try{
-            InetAddress adresse = InetAddress.getLocalHost();
-            return adresse;
-        }catch (UnknownHostException e){e.printStackTrace();}
-        return null;
-    }
 
     @Override
     public User getUser(String email) throws RemoteException {
         return UserDao.getUserByEmail(email);
+    }
+
+    @Override
+    public boolean addUserToClasse(int user_id, int classe_id) throws RemoteException {
+        return UserDao.updateUserClasse(user_id,classe_id);
+    }
+
+    @Override
+    public boolean addModuleToClasse(int module_id, int classe_id) throws RemoteException {
+        return ModuleDao.updateModuleClasse(module_id,classe_id);
+    }
+
+    @Override
+    public boolean addNewUser(User user) throws RemoteException {
+        return UserDao.addUserWithClasse(user);
+    }
+
+    @Override
+    public boolean addNewModule(Module module) throws RemoteException {
+        return ModuleDao.addModule(module);
+    }
+
+    @Override
+    public boolean addSimpleUser(User user) throws RemoteException {
+        return UserDao.addUser(user);
     }
 }

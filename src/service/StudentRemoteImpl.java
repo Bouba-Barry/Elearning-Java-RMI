@@ -3,6 +3,7 @@ package service;
 import dao.ModuleDao;
 import dao.UserDao;
 import metier.Messagerie;
+import metier.Module;
 import metier.User;
 
 import java.net.InetAddress;
@@ -60,6 +61,31 @@ private Messagerie message;
     @Override
     public User getUser(String email) throws RemoteException {
         return UserDao.getUserByEmail(email);
+    }
+
+    @Override
+    public boolean addUserToClasse(int user_id, int classe_id) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public boolean addModuleToClasse(int user_id, int classe_id) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public boolean addNewUser(User user) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public boolean addSimpleUser(User user) throws RemoteException {
+        return false;
+    }
+
+    @Override
+    public boolean addNewModule(Module module) throws RemoteException {
+        return false;
     }
 }
 

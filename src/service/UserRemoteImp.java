@@ -18,7 +18,15 @@ private CopyOnWriteArrayList<User> userOnlines = new CopyOnWriteArrayList<>();
 
     @Override
     public void addUserOnline(User user) throws RemoteException {
-        if(! userOnlines.contains(user)){
+        boolean found = false;
+        for (User u : userOnlines) {
+            if (u.getNom().equals(user.getNom())) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
             userOnlines.add(user);
         }
     }

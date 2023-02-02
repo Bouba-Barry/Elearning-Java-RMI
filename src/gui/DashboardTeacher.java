@@ -5,10 +5,14 @@ import dao.ClasseDao;
 import dao.ModuleDao;
 import dao.RessourceDao;
 import dao.UserDao;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -21,6 +25,8 @@ import metier.Module;
 import service.*;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
@@ -103,34 +109,54 @@ public class DashboardTeacher {
         conversationHbox.getChildren().addAll(titledPaneConv);
 
         //part of logout
-        Button logoutButton = new Button("logout");
-        logoutHbox.getChildren().add(logoutButton);
-        logoutButton.setPrefSize(180,10);
+        //Button logoutButton = new Button("logout");
+        //logoutHbox.getChildren().add(logoutButton);
+        //logoutButton.setPrefSize(180,10);
 
-        leftPanel.getChildren().addAll(conversationHbox,logoutHbox);
+        leftPanel.getChildren().addAll(conversationHbox);
         leftPanel.setSpacing(20);
         leftPanel.setPadding(new Insets(20,5,0,0));
         leftPanel.setStyle("-fx-background-color: lightgray");
 
         /*************************  right Panel ************************************  ***/
         for(Module m: modules){
-            VBox module1Vbox = new VBox();
-            Label module1Label = new Label(m.getLibelle());
-            module1Label.setPadding(new Insets(3,150,0,0));
-            Button module1Button = new Button("voir plus");
-            module1Vbox.getChildren().addAll(module1Label,module1Button);
-            module1Vbox.setStyle("-fx-background-color: rgba(255,255,255,0.87)");
+            VBox module2Vbox = new VBox();
+            HBox module2Hbox = new HBox();
+            // Button classeButton2 = new Button();
+            Image Imgclasse2 = null;
+            try {
+                Imgclasse2 = new Image(new FileInputStream("ressource/image/doc.png"));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            ImageView classeImgView2 = new ImageView(Imgclasse2);
+            classeImgView2.setFitHeight(60);
+            classeImgView2.setFitWidth(70);
+            //classeButton2.setGraphic(classeImgView2);
+            //classeButton2.setPadding(new Insets(20,5,0,5));
 
+            Label module2Label = new Label(m.getLibelle()+"\n"+"Depuis le 2022/12/01/ 1h:34:00");
+            //Label create_atLabel = new Label("2022/12/01/ 1h:34:00 ");
+            module2Label.setPadding(new Insets(5,10,20,5));
+            module2Hbox.getChildren().addAll(classeImgView2,module2Label);
+            module2Hbox.setAlignment(Pos.TOP_LEFT);
 
-            module1Vbox.setSpacing(10);
-            module1Vbox.setAlignment(Pos.BASELINE_CENTER);
-            module1Vbox.setPrefSize(200,80);
-            rightPanel.getChildren().addAll(module1Vbox);
+            HBox gerezHbox2 = new HBox();
+            Button module2Button = new Button("Voir Plus");
+            gerezHbox2.getChildren().add(module2Button);
+            gerezHbox2.setAlignment(Pos.BOTTOM_RIGHT);
+            gerezHbox2.setPadding(new Insets(5,20,5,100));
 
-            module1Button.setOnAction(event -> {
+            module2Button.setOnAction(event -> {
                 BorderPane pane = moduleComponent(root,m.getLibelle(),m.getId() ,scrollPaneRightPanel,primaryStage);
                 root.setCenter(pane);
             });
+            module2Vbox.getChildren().addAll(module2Hbox,gerezHbox2);
+            module2Vbox.setStyle("-fx-background-color: rgba(255,255,255,0.87)");
+            module2Vbox.setSpacing(10);
+            module2Vbox.setAlignment(Pos.BASELINE_CENTER);
+            module2Vbox.setPrefSize(200,80);
+            rightPanel.getChildren().addAll(module2Vbox);
         }
        // rightPanel.getChildren().addAll(module1Vbox,module2Vbox,module3Vbox);
         rightPanel.setSpacing(30);
@@ -144,25 +170,60 @@ public class DashboardTeacher {
 
 
         /** *******traitement du top *********************************/
-        // label du prof
-        HBox AccueilProf = new HBox();
-        Label profName = new Label(""+currentUser.getNom());
-        profName.setFont(Font.font("Verdana", FontWeight.BOLD, FontPosture.REGULAR, 20));
-        AccueilProf.getChildren().addAll(profName);
-        AccueilProf.setPadding(new Insets(20,0,20,40));
+        HBox accueilAdmin = new HBox();
+        Label welcomeLabel = new Label("Dashboard teacher");
+        welcomeLabel.setFont(Font.font("bold",20));
+        welcomeLabel.setTextFill(Color.WHITE);
+        //welcomeLabel.setPadding(new Insets(10));
+        accueilAdmin.getChildren().addAll(welcomeLabel);
+        accueilAdmin.setPadding(new Insets(20,100,20,10));
+        accueilAdmin.setAlignment(Pos.TOP_LEFT);
 
-        HBox CoursModuleHbox = new HBox();
-        Label modLabel = new Label("Vos Modules");
-        modLabel.setFont(Font.font("Comic Sans MS", FontWeight.BOLD, FontPosture.REGULAR, 20));
-        CoursModuleHbox.getChildren().add(modLabel);
-        CoursModuleHbox.setAlignment(Pos.BASELINE_CENTER);
-        CoursModuleHbox.setPadding(new Insets(20,100,20,300));
+        HBox profNameHbox = new HBox();
+        Label label = new Label("Mr "+currentUser.getNom());
+        label.setTextFill(Color.WHITE);
+        label.setFont(Font.font("bold",20));
+        Image image = null;
+        try {
+            image = new Image(new FileInputStream("ressource/image/profile.jpg"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(20);
+        imageView.setFitWidth(20);
+        profNameHbox.getChildren().addAll(imageView,label);
+        profNameHbox.setPadding(new Insets(20,100,20,5));
+        profNameHbox.setAlignment(Pos.TOP_CENTER);
+
+        HBox leftTopHbox = new HBox();
+        Button logoutButton = new Button();
+        Image image2 = null;
+        try {
+            image2 = new Image(new FileInputStream("ressource/image/logout.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView logoutImg = new ImageView(image2);
+        logoutImg.setFitHeight(20);
+        logoutImg.setFitWidth(20);
+        logoutButton.setGraphic(logoutImg);
+        //logoutButton.setTextFill(Color.WHITE);
+        logoutButton.setOnAction(event -> {
+            logoutMethod(userRMI,event);
+        });
+        logoutButton.setStyle("-fx-background-color: #FF0F0F");
+        leftTopHbox.getChildren().add(logoutButton);
+        leftTopHbox.setAlignment(Pos.TOP_RIGHT);
+        leftTopHbox.setPadding(new Insets(20,0,20,100));
 
         HBox topHbox = new HBox();
         topHbox.setSpacing(20);
         topHbox.setPadding(new Insets(5,50,30,0));
-        topHbox.getChildren().addAll(AccueilProf,CoursModuleHbox);
-        topHbox.setStyle("-fx-background-color: rgb(234, 202, 83, 1)");
+        topHbox.getChildren().addAll(accueilAdmin,profNameHbox,leftTopHbox);
+        topHbox.setStyle("-fx-background-color: rgb(23, 50, 113, 1)");
+        // label du prof
+
 
         root.setTop(topHbox);
         root.setLeft(leftPanel);
@@ -187,33 +248,98 @@ public class DashboardTeacher {
         HBox topLabHbox = new HBox();
 
         Label moduleNameLabel = new Label(moduleName);
-        moduleNameLabel.setAlignment(Pos.BASELINE_CENTER);
-        moduleNameLabel.setFont(new Font(20));
+        moduleNameLabel.setAlignment(Pos.TOP_CENTER);
+        moduleNameLabel.setFont(new Font("Bold",20));
 
-        Button backButton = new Button("retour Menu");
+        Button backButton = new Button();
         backButton.setAlignment(Pos.TOP_LEFT);
+        Image backImg = null;
+        try {
+            backImg = new Image(new FileInputStream("ressource/image/iconRetour.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView backImgView = new ImageView(backImg);
+        backImgView.setFitHeight(30);
+        backImgView.setFitWidth(30);
+        backButton.setGraphic(backImgView);
 
-        Button whiteBoardButton = new Button("tableau blanc");
+        Button whiteBoardButton = new Button();
+        Image whiteImg = null;
+        try {
+            whiteImg = new Image(new FileInputStream("ressource/image/whiteBoard1.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView whiteImgView = new ImageView(whiteImg);
+        whiteImgView.setFitHeight(30);
+        whiteImgView.setFitWidth(30);
+        whiteBoardButton.setGraphic(whiteImgView);
         whiteBoardButton.setAlignment(Pos.TOP_RIGHT);
+        whiteBoardButton.setOnAction(event -> {
+            try {
+                main.setCenter(new WhiteBoard(module_id).start(stage,main,pred));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
 
-        topLabHbox.getChildren().addAll(backButton,moduleNameLabel,whiteBoardButton );
-        topLabHbox.setSpacing(125);
+        //** boutton d'affichage de upload file
+        Button uploButton = new Button();
+        //uploButton.setPadding(new Insets(10,5,10,100));
+        Image uploImg = null;
+        try {
+            uploImg = new Image(new FileInputStream("ressource/image/upload.jpeg"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView uploImgView = new ImageView(uploImg);
+        uploImgView.setFitHeight(30);
+        uploImgView.setFitWidth(30);
+        uploButton.setGraphic(uploImgView);
+        //uploButton.setAlignment(Pos.TOP_);
+        HBox buttonEnd = new HBox();
+        buttonEnd.getChildren().addAll(uploButton,whiteBoardButton);
+        buttonEnd.setSpacing(10);
+        buttonEnd.setAlignment(Pos.TOP_RIGHT);
+        buttonEnd.setPadding(new Insets(0,5,0,120));
+
+
+
+        topLabHbox.getChildren().addAll(backButton,moduleNameLabel,buttonEnd );
+        topLabHbox.setSpacing(50);
         topLabHbox.setPadding(new Insets(5,5,10,5));
 
         HBox topOpeHbox = new HBox();
         TextField descriptionTextFied = new TextField();
         descriptionTextFied.setPromptText("describe file");
-        Button uploadButton = new Button("upload");
+        descriptionTextFied.setPrefSize(200,20);
+        Button uploadButton = new Button();
+        Image uploadBtnImg = null;
+        try {
+            uploadBtnImg = new Image(new FileInputStream("ressource/image/uploadButton.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView uploadBtnImgView = new ImageView(uploadBtnImg);
+        uploadBtnImgView.setFitHeight(30);
+        uploadBtnImgView.setFitWidth(30);
         //uploadButton.setAlignment(Pos.TOP_RIGHT);
+        uploadButton.setGraphic(uploadBtnImgView);
         uploadButton.setOnAction(event -> {
             String desc = descriptionTextFied.getText();
             uploadFile(desc,module_id, currentUser.getNom(),stage);
         });
 
         topOpeHbox.getChildren().addAll(descriptionTextFied,uploadButton);
-        topOpeHbox.setSpacing(5);
+        topOpeHbox.setSpacing(2);
         topOpeHbox.setAlignment(Pos.BASELINE_CENTER);
+        topOpeHbox.setVisible(false);
+       // boolean tmp = false;
+        uploButton.setOnAction(event -> {
+         topOpeHbox.setVisible(true);
+        });
 
         topVbox.setSpacing(10);
         topVbox.getChildren().addAll(topLabHbox,topOpeHbox);
@@ -228,23 +354,52 @@ public class DashboardTeacher {
         VBox centerVbox = new VBox();
         Label ressourceTitle = new Label("Ressource Uploader");
         ressourceTitle.setAlignment(Pos.BASELINE_CENTER);
+        ressourceTitle.setPadding(new Insets(5,100,5,100));
         centerVbox.getChildren().add(ressourceTitle);
 
         for(Ressource r : ressources){
-            VBox module1Vbox = new VBox();
-            Label module1Label = new Label(r.getRessource_name());
-            module1Label.setPadding(new Insets(3,150,0,0));
-            Button module1Button = new Button("remove");
-            module1Vbox.getChildren().addAll(module1Label,module1Button);
-            module1Vbox.setStyle("-fx-background-color: rgba(255,255,255,0.87)");
-            module1Vbox.setSpacing(10);
-            module1Vbox.setAlignment(Pos.BASELINE_CENTER);
-            module1Vbox.setPrefSize(200,80);
-            centerVbox.getChildren().add(module1Vbox);
+            ///********
+            VBox module2Vbox = new VBox();
+            HBox module2Hbox = new HBox();
+            // Button classeButton2 = new Button();
+            Image Imgclasse2 = null;
+            try {
+                Imgclasse2 = new Image(new FileInputStream("ressource/image/ressource.png"));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            ImageView classeImgView2 = new ImageView(Imgclasse2);
+            classeImgView2.setFitHeight(60);
+            classeImgView2.setFitWidth(70);
+            //classeButton2.setGraphic(classeImgView2);
+            //classeButton2.setPadding(new Insets(20,5,0,5));
 
+            Label module2Label = new Label(r.getRessource_name()+"\n"+r.getType_ressource()+"\n Depuis le");
+            Label desc = new Label(r.getType_ressource());
+
+            //Label create_atLabel = new Label("2022/12/01/ 1h:34:00 ");
+            module2Label.setPadding(new Insets(5,10,20,5));
+            module2Hbox.getChildren().addAll(classeImgView2,module2Label);
+            module2Hbox.setAlignment(Pos.TOP_LEFT);
+
+            HBox gerezHbox2 = new HBox();
+            Button module2Button = new Button("remove");
+            gerezHbox2.getChildren().add(module2Button);
+            gerezHbox2.setAlignment(Pos.BOTTOM_RIGHT);
+            gerezHbox2.setPadding(new Insets(5,20,5,100));
+
+            module2Button.setOnAction(event -> {
+
+            });
+            module2Vbox.getChildren().addAll(module2Hbox,gerezHbox2);
+            module2Vbox.setStyle("-fx-background-color: rgba(255,255,255,0.87)");
+            module2Vbox.setSpacing(10);
+            module2Vbox.setAlignment(Pos.BASELINE_CENTER);
+            module2Vbox.setPrefSize(200,80);
+            centerVbox.getChildren().add(module2Vbox);
         }
 
-        centerVbox.setSpacing(30);
+        centerVbox.setSpacing(20);
         centerVbox.setPadding(new Insets(15,20,0,20));
         centerVbox.setPrefWidth(600);
         ScrollPane scrollPaneRightPanel = new ScrollPane(centerVbox);
@@ -319,18 +474,36 @@ public class DashboardTeacher {
         String receiverName = receiverInfo.getNom();
         Label receiverNameLabel = new Label(receiverName);
         receiverNameLabel.setFont(Font.font("bold",30));
+        receiverNameLabel.setAlignment(Pos.TOP_CENTER);
 
-        Button backButton = new Button("retour Menu");
+
+        Button backButton = new Button();
+        backButton.setAlignment(Pos.TOP_LEFT);
+        Image backImg = null;
+        try {
+            backImg = new Image(new FileInputStream("ressource/image/iconRetour.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView backImgView = new ImageView(backImg);
+        backImgView.setFitHeight(30);
+        backImgView.setFitWidth(30);
+        backButton.setGraphic(backImgView);
+        //backButton.setPadding(new Insets(10,150,10,5));
         backButton.setAlignment(Pos.TOP_LEFT);
         backButton.setOnAction(event -> {
             main.setCenter(pred);
         });
+        HBox buttonBack = new HBox();
+        buttonBack.getChildren().add(backButton);
+        buttonBack.setAlignment(Pos.TOP_LEFT);
+        buttonBack.setPadding(new Insets(0,80,0,5));
 
 
         hBox.getChildren().addAll(backButton,receiverNameLabel);
         hBox.setSpacing(80);
         // ce qui est ajouté de suite ....
-        hBox.setPadding(new Insets(10,0,0,150));
+        hBox.setPadding(new Insets(10,0,0,10));
         hBox.setStyle("-fx-background-color: white");
 
         borderPane.setTop(hBox);
@@ -353,14 +526,15 @@ public class DashboardTeacher {
         for (Messagerie message:messageList) {
             HBox leftHBox = new HBox();
             HBox rightHBox = new HBox();
-            Label leftLabel = new Label(message.getContent());
+           // leftHBox.setPadding(new Insets());
+            Label leftLabel = new Label(message.getContent() + "\n" + message.getDate());
             leftLabel.setFont(Font.font("bold",15));
-            Label rightLabel = new Label(message.getContent());
+            Label rightLabel = new Label(message.getContent() + "\n" + message.getDate());
             rightLabel.setFont(Font.font("bold",15));
             if (message.getSender_id()==receiverInfo.getId()){
                 //Message have to be displayed at left
                 leftHBox.getChildren().add(leftLabel);
-                leftHBox.setStyle("-fx-background-color: lightgray");
+                leftHBox.setStyle("-fx-background-color: #89849C");
                 leftMessageDisplay.getChildren().add(leftHBox);
                 rightLabel.setVisible(false);
                 rightHBox.getChildren().add(rightLabel);
@@ -368,7 +542,7 @@ public class DashboardTeacher {
             }else {
                 //Message have to be displayed at right
                 rightHBox.getChildren().add(rightLabel);
-                rightLabel.setStyle("-fx-background-color: #C0C0C0");
+                rightLabel.setStyle("-fx-background-color: #2caf19");
                 rightMessageDisplay.getChildren().add(rightHBox);
                 leftLabel.setVisible(false);
                 leftHBox.getChildren().add(leftLabel);
@@ -388,15 +562,24 @@ public class DashboardTeacher {
 
         HBox writingHbox = new HBox();
         TextArea messageField = new TextArea();
-        messageField.setPrefWidth(700);
+        messageField.setPrefWidth(550);
         messageField.setPrefHeight(30);
         messageField.setBorder(Border.EMPTY);
 
-        Button sendButton = new Button("send");
-        sendButton.setPrefSize(100,40);
-        sendButton.setFont(Font.font("bold",20));
+        Button sendButton = new Button();
+        Image sendImg = null;
+        try {
+            sendImg = new Image(new FileInputStream("ressource/image/send.png"));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        ImageView sendImgView = new ImageView(sendImg);
+        sendImgView.setFitHeight(30);
+        sendImgView.setFitWidth(30);
+        sendButton.setGraphic(sendImgView);
+        sendButton.setPrefSize(30,30);
         //sendButton.setTextFill(Color.WHITE);
-        sendButton.setStyle("-fx-background-color: green");
+        //sendButton.setStyle("-fx-background-color: green");
         sendButton.setOnAction(event -> {
             String messageToSend = messageField.getText();
             if (!messageToSend.equals("")){
@@ -440,17 +623,27 @@ public class DashboardTeacher {
     public void addMessageInConversationBox(String message,VBox leftMessageDisplay,VBox rightMessageDisplay,BorderPane conversationBox)
     {
         Label leftLabel = new Label(message);
-        leftLabel.setFont(Font.font("bold",15));
+        leftLabel.setFont(Font.font("bold",17));
         Label rightLabel = new Label(message);
+        rightLabel.setTextFill(Color.WHITE);
         rightLabel.setFont(Font.font("bold",15));
         HBox leftHBox = new HBox();
         HBox rightHBox = new HBox();
         rightHBox.getChildren().add(rightLabel);
-        rightLabel.setStyle("-fx-background-color: #C0C0C0");
+        rightLabel.setStyle("-fx-background-color: #2caf19");
         rightMessageDisplay.getChildren().add(rightHBox);
         leftLabel.setVisible(false);
         leftHBox.getChildren().add(leftLabel);
         leftMessageDisplay.getChildren().add(leftHBox);
     }
-
+public void logoutMethod(UserRMI u, Event event){
+    try{
+        if (sessionUser.logout(u.getUser(u.getEmail()))){
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            stage.close();
+        }
+    }catch (Exception e){
+        System.out.println("Failed to delete user session !!!");
+    }
+}
 }

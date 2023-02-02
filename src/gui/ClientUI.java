@@ -51,7 +51,7 @@ public class ClientUI extends Application {
         VBox vbox1 = new VBox();
         HBox imgHbox = new HBox();
 
-        ImageView imageView = new ImageView(new Image(new FileInputStream("ressource/login.png")));
+        ImageView imageView = new ImageView(new Image(new FileInputStream("ressource/image/login.png")));
         imageView.setFitHeight(150);
         imageView.setFitWidth(200);
        // imageView.setStyle("-fx-background-color: #c0c0c0");
@@ -113,6 +113,9 @@ public class ClientUI extends Application {
                     }
                     else if(clientRMI.getUserRMI().getRole().equals("teacher")){
                         primaryStage.setScene(new DashboardTeacher().DashboardTeacher(primaryStage,email,clientRMI));
+                    } else if (clientRMI.getUserRMI().getRole().equals("admin")) {
+                        //primaryStage.setScene(new AdminDashboard().startMethode);
+                        primaryStage.setScene(new DashboardAdmin().startMethode(primaryStage,email,clientRMI));
                     }
                 }catch (Exception e){e.printStackTrace();}
             }else{
@@ -124,8 +127,11 @@ public class ClientUI extends Application {
           @Override
           public void handle(WindowEvent event) {
               try {
-                  clientRMI.getUserSession().logout(UserDao.getUserByEmail(email));
-                  System.out.println("deconnexion du user ");
+                  if(clientRMI != null){
+                      clientRMI.getUserSession().logout(UserDao.getUserByEmail(email));
+                      System.out.println("deconnexion du user ");
+                  }
+
               } catch (RemoteException e) {
                   throw new RuntimeException(e);
               }

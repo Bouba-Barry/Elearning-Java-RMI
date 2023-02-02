@@ -16,7 +16,8 @@ import java.util.List;
 public class ModuleDao {
     private static Connection connection = ConnectDB.getConnection();
 
-    public static void addModule(Module module) {
+    public static boolean addModule(Module module) {
+        boolean tmp = false;
         String sql = "INSERT INTO Module (libelle, teacher_id, classe_id) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1,module.getLibelle());
@@ -24,10 +25,12 @@ public class ModuleDao {
             statement.setInt(3, module.getClasse_id());
 
             statement.executeUpdate();
+            tmp = true;
         } catch (SQLException e) {
             e.printStackTrace();
             ConnectDB.closeConnection();
         }
+        return tmp;
     }
 
     public static int readModuleIdByTeacher(int teacher_id){
@@ -115,5 +118,71 @@ public class ModuleDao {
         }
         return classes;
     }
+
+    public static List<Module> getAllModuleByClasse(int classe_id){
+        List<Module> modules = new ArrayList<>();
+        String sql = "SELECT * FROM Module Where classe_id = ? ";
+        try {
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setInt(1,classe_id);
+            ResultSet resultSet = statement.executeQuery();
+            while(resultSet.next()) {
+                int idModule = resultSet.getInt("id");
+                int teacher_id = resultSet.getInt("teacher_id");
+                String libelle = resultSet.getString("libelle");
+                modules.add(new Module(idModule,libelle,teacher_id));
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return modules;
+    }
+
+    public static List<Module> getModulesWithNullClasseId() {
+        String sql = "SELECT * FROM Module WHERE classe_id IS NULL ";
+        List<Module> modules = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int idModule = resultSet.getInt("id");
+                int teacher_id = resultSet.getInt("teacher_id");
+                String libelle = resultSet.getString("libelle");
+                modules.add(new Module(idModule,libelle,teacher_id));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ConnectDB.closeConnection();
+        }
+        return modules;
+    }
+
+    public static boolean updateModuleClasseToNull(int mod_id) {
+        boolean tmp = false;
+        String sql = "UPDATE Module SET classe_id = NULL WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, mod_id);
+            statement.executeUpdate();
+            tmp = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            ConnectDB.closeConnection();
+        }
+        return tmp;
+    }
+
+    public static boolean updateModuleClasse(int module_id, int classe_id) {
+        boolean tmp = false;
+        String sql = "UPDATE Module SET classe_id = ? WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, classe_id);
+            statement.setInt(2, module_id);
+            statement.executeUpdate();
+            tmp = true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tmp;
+    }
+
 
 }

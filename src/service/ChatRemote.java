@@ -1,5 +1,6 @@
 package service;
 
+import metier.Forum;
 import metier.Messagerie;
 
 import java.rmi.Remote;
@@ -12,4 +13,7 @@ public interface ChatRemote extends Remote {
     public List<Messagerie> getMessages(int user_id, int sender_id) throws RemoteException;
     public List<Messagerie> getMessageries() throws RemoteException;
     public void receiveMessage(String message) throws RemoteException;
+
+    public boolean addMessageToGroup(int classeId, int senderId, String message) throws RemoteException;
+    public List<Forum> getGroupMessages(int classeId) throws RemoteException;
 }

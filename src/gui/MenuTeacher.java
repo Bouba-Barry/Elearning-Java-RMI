@@ -94,7 +94,7 @@ public class MenuTeacher extends Application {
         rightPanel.setPrefWidth(600);
         ScrollPane scrollPaneRightPanel = new ScrollPane(rightPanel);
         scrollPaneRightPanel.setBorder(Border.EMPTY);
-        //scrollPaneRightPanel.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPaneRightPanel.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
         /** *******traitement du top *********************************/
         // label du prof

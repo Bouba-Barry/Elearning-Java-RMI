@@ -1,6 +1,7 @@
 package service;
 
 import metier.Messagerie;
+import metier.Module;
 import metier.User;
 
 import java.net.InetAddress;
@@ -18,4 +19,10 @@ public interface UserRMI extends Remote {
     public void notifyMessage(String message,UserRMI user) throws RemoteException;
     public Messagerie getNewMessage() throws RemoteException;
     public void setNewMessage(Messagerie message) throws RemoteException;
+
+    public boolean addUserToClasse(int user_id, int classe_id) throws RemoteException;
+    public boolean addModuleToClasse(int user_id , int classe_id) throws RemoteException;
+    public boolean addNewUser(User user) throws RemoteException;
+    public boolean addNewModule(Module module) throws RemoteException;
+    public boolean addSimpleUser(User user) throws  RemoteException;
 }

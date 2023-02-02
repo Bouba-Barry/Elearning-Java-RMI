@@ -30,7 +30,7 @@ public class ServerRMI {
         //LocateRegistry.createRegistry(1096);
         Naming.rebind("TeacherService", teacher);
 
-        UserRMI admin = new TeacherRemoteImpl();
+        UserRMI admin = new AdminRemoteImpl();
         //LocateRegistry.createRegistry(1095);
         Naming.rebind("AdminService", admin);
 
@@ -55,6 +55,9 @@ public class ServerRMI {
 
         FileRemote fileRemote = new FileRemoteImpl();
         Naming.rebind("FileService", fileRemote);
+
+        WhiteBoardRemote whiteBoardRemote = new WhiteBoardImp();
+        Naming.rebind("WhiteBoardService", whiteBoardRemote);
 
     } catch (Exception e) {
         e.printStackTrace();

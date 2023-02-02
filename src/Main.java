@@ -3,10 +3,10 @@ import dao.MessagerieDao;
 import dao.ModuleDao;
 import dao.RessourceDao;
 import dao.UserDao;
-import metier.Classe;
 import metier.Messagerie;
 import metier.Module;
 import metier.Ressource;
+import metier.User;
 
 import java.util.List;
 
@@ -30,12 +30,16 @@ public class Main {
             System.out.println("etat :  "+m.getEtat());
         }
 
-*/
 
         for(String s : ModuleDao.getAllStudentByTeacher(2)){
            // String part[] =  s.split(":");
             System.out.println(Integer.parseInt(s));
         }
+
+*/
+       for(User u : UserDao.getAllStudentByClasse(1)){
+           System.out.println(u.getNom());
+       }
     }
 
 }
